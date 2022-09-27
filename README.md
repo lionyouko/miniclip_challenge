@@ -6,7 +6,8 @@ Private Repository to Write The Process of Creating Two APIs for mini clip chall
 Initial proposed sections:
 
 1. Reasoning about the challenge (include resources consulted in order to come up with an idea to solve)
-2. Step-by-step guide on how it was solved (or tried to be solved)
+2. Step-by-step guide on how it was solved (or tried to be solved). 
+3. General Tasks
 
 More notation in-text may happen, as for example, to denote something that was difficult to solve. Instead of separating it into sections, it may be incorporated directly into the text itself, maintaining the flow of it.
 
@@ -31,3 +32,12 @@ The second thing to look for is the building blocks for a custom API for each on
 
 After I choose the path I will try to follow, I will break down the steps of each one library and checkmark each one completed with a time stamp of it. It is a two week sprint, for two libraries. 
 
+## Step-by-step Guide
+
+## General Tasks
+
+Here I will put each of the general tasks to try complete the challenge.
+
+- [ ] Check if there are official supported APIs for analytics and ads.
+- [ ] Check methods to implement function calls outside android main thread (eg asyncTasks (deprecated?), etc)
+- [ ] Check methods to implement functional calls supporting event-driven design (eg RxJava). 
