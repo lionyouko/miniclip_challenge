@@ -32,6 +32,21 @@ The second thing to look for is the building blocks for a custom API for each on
 
 After I choose the path I will try to follow, I will break down the steps of each one library and checkmark each one completed with a time stamp of it. It is a two week sprint, for two libraries. 
 
+27092022
+
+I have found how to built android libraries. 
+These are some tutorials explaining how to do it in general:
+- Google: https://developer.android.com/studio/projects/android-library
+- As an Addon: https://medium.com/profusion-engineering/how-to-build-and-use-an-android-sdk-add-on-8b86573f8c61
+- https://guides.codepath.com/android/Building-your-own-Android-library
+- https://blog.instabug.com/create-and-distribute-android-library/
+- https://www.raywenderlich.com/52-building-an-android-library-tutorial
+
+I am used to build APIs for Cloud services (like a Flask application). For Java, exposing with interfaces. 
+The challenge is challenging as I am used to built android applications. I was never promped to offer a library for another android application, so I had to research how it is done with android studio tools.
+
+
+
 ## Step-by-step Guide
 
 ## General Tasks
