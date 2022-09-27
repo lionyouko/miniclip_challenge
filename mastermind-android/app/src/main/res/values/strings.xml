@@ -1,0 +1,42 @@
+<resources>
+    <string name="app_name">Mastermind Technical Challenge</string>
+
+    <!--Buttons-->
+    <string name="new_game">New Game</string>
+    <string name="restart_game">Restart</string>
+    <string name="submit">Submit Line</string>
+    <string name="clear">Clear Line</string>
+    <string name="check">Check</string>
+
+    <!--New game dialog-->
+    <string name="rows">Rows: %d</string>
+    <string name="columns">Columns: %d</string>
+    <string name="duplicate_colors">Duplicate colors</string>
+    <string name="cancel">Cancel</string>
+    <string name="start">Start</string>
+
+    <!--Game-->
+    <string name="places">Places</string>
+    <string name="colors">Colors</string>
+    <string name="places_clue_format">%sP</string>
+    <string name="colors_clue_format">%sC</string>
+    <string name="hidden_ball">\?</string>
+
+
+    <!--Info-->
+    <string name="incomplete_row">Row is not complete!</string>
+    <string name="win_msg">You WON!</string>
+    <string name="win_popup">Congratulations, you are the Mastermind!</string>
+    <string name="lose_popup">Almost there, try again!</string>
+    <string name="lost_msg">You LOST!</string>
+
+    <!--Exit prompt-->
+    <string name="exit_prompt_title">Confirm exit</string>
+    <string name="exit_prompt_message">Do you really want to exit?</string>
+    <string name="restart_message">Do you really want restart the game?</string>
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
+    <string name="how_to_play_title">How to play</string>
+    <string name="how_to_play_message">Click on the bottom most row of ball slots to have them change color.\n When you have chosen your sequence, press Submit.</string>
+    <string name="ok">I understand</string>
+</resources>
