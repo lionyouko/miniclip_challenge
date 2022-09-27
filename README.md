@@ -38,6 +38,6 @@ After I choose the path I will try to follow, I will break down the steps of eac
 
 Here I will put each of the general tasks to try complete the challenge.
 
-- [ ] Check if there are official supported APIs for analytics and ads.
+- [x] Check if there are official supported APIs for analytics and ads. (SOLVED: Not gonna use any).
 - [ ] Check methods to implement function calls outside android main thread (eg asyncTasks (deprecated?), etc)
 - [ ] Check methods to implement functional calls supporting event-driven design (eg RxJava). 
