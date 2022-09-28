@@ -48,7 +48,11 @@ The challenge is challenging as I am used to built android applications. I was n
 
 
 ## Step-by-step Guide
-
+1. For *advertisements*: 
+   - The library will be called advertads. In order to build it, first we will build a custom view. That view will have listener to respond to interaction with banner ad (even if the interaction is with the app it is in, like exemplified in challenge text).
+     - Resources: 
+       - To remember how to make a custom view: https://codelabs.developers.google.com/codelabs/advanced-android-training-customize-view/index.html?index=..%2F..advanced-android-training#0
+       - We may explore a bit adviews from google (the source code): 
 ## General Tasks
 
 Here I will put each of the general tasks to try complete the challenge.
