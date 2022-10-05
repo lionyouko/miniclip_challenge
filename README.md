@@ -48,15 +48,44 @@ The challenge is challenging as I am used to built android applications. I was n
 
 
 ## Step-by-step Guide
+
+I will reinforce this aspect: since I am entry-level, I had to research a lot before starting to code. And what it may come from that research is just a small version of the complexity it holds for a starter. 
+
+What I want to also achieve is to show that I am aware of meaningful aspects of such libraries, namely: being aware of lifecycles, using extra-permissions (only if necessary), avoiding to run long tasks on main thread, storing (caching) information if possible, among others. 
+
+
 1. For *advertisements*: 
+   - The final purpose of the research was to evalute the main (helper) components necessary to make a custom view that can load ads and present itself in a customizable way also being somewhat open to be observed about certain events of itself. So it has to be some sort of lifecycle of its own that listeners can get aware of. The helper components may be in form of interfaces or abstract classes, some may be concrete classes specialized in something (as to download the banners), in a SOLID fashion. 
    - The library will be called advertads. In order to build it, first we will build a custom view. That view will have listener to respond to interaction with banner ad (even if the interaction is with the app it is in, like exemplified in challenge text).
      - Resources: 
        - To remember how to make a custom view: https://codelabs.developers.google.com/codelabs/advanced-android-training-customize-view/index.html?index=..%2F..advanced-android-training#0
-       - We may explore a bit adviews from google (the source code): 
+       - We may explore a bit adviews from google (the source code was not found, so I searched a similar one): https://github.com/appnexus/mobile-sdk-android/blob/master/sdk/src/com/appnexus/opensdk/AdView.java
+       - Read about custom views lifecycles (also part 1 and 2 of the same text): https://proandroiddev.com/android-custom-view-level-3-81e767c8cc75
+       - We could evaluate the general design of an advertisement library (meaning the Domain Model of it):  https://github.com/appnexus/mobile-sdk-android/tree/master/sdk/src/com/appnexus/opensdk
+       - We care about the resource usage of our application (from network to storage, but also in-memory usage): https://github.com/googleads/googleads-mobile-android-examples/blob/main/java/admob/BannerExample/app/src/main/java/com/google/android/gms/example/bannerexample/MyActivity.java
+       - We want to save a small cache and only go to network if the resources to download areen't saved already (thee following resource was more to remember File API): https://github.com/loopj/android-smart-image-view/blob/master/src/com/loopj/android/image/WebImageCache.java
+       - We want to connect to external data resourcees via network, in a asynchronous thread, that may or not find resources: https://loopj.com/android-async-http/
+
+Challenge description did not say certain aspects of the advertisement library. But since I already studied mobile development in masters, I was aware that, mobile devices have limited resources. Applications must consider that, thus having smallest footprint possible. That is a general concept, actually, but for mobile development, it is a bigger deal because the user's reaction to a resource-hungry application is to notice its phone getting hotter and slower, its battery dying faster, then making the user to delete the applicatiton. 
+
+The steps taken to develop tthis library were:
+
+1. Produce a small (mental) domain model for the library after reading documentation and resources mentioned above)
+2. To produce helper specialized objects (classes) that can solve tasks for the "main" object, our BannerView.
+3. To make BannerView aware about app lifecycle, so it doesnt not consume app memory or cpu for nothing.
+
+I will write more about the code, but maybe the library's code speak for itself. For example:
+
+- we have a ImageAdsDownloadHelper that implements the interface AdDownloader. For this download helper, the ad resources are images. It uses a URLResourcHelper to fetch the resource urls and then use them to download the images. It is a very gentle but useful reminder that I am aware of android Jetpack Rooms library (where we have a repository class helping to connect to resources in MVVM).
+- The ImageAdsDownloadHelper does 2 types of work (it, thus, could have been breaken down it two classes): to store the resources downloaded, and to download them. This class will recover cached resources in th constructor, and will avoid to download the resources by checking the stored name of the files, compared with the url of the about-to-be-download resources. It will skip if the cached file nams are the url of the resourcee desired (this is to show that a developer must find strategies avoid network usage if nott stricly necessary. Memory is cheap, Time and mobile data not that much).
+- The library needs to require (or even to inherit) permission to usee network and to read and write on external storage.
+
+
 ## General Tasks
 
 Here I will put each of the general tasks to try complete the challenge.
 
 - [x] Check if there are official supported APIs for analytics and ads. (SOLVED: Not gonna use any).
-- [ ] Check methods to implement function calls outside android main thread (eg asyncTasks (deprecated?), etc)
-- [ ] Check methods to implement functional calls supporting event-driven design (eg RxJava). 
+- [x] Check methods to implement function calls outside android main thread (eg asyncTasks (deprecated?), etc)
+- [x] Check methods to implement functional calls supporting event-driven design (eg RxJava). 
+- [x] Imagine a Domain Model for the application (BannerView and classes to implement helping specialized tasks/concerns)
