@@ -7,3 +7,5 @@ dependencyResolutionManagement {
 }
 rootProject.name = "Mastermind Test Task"
 include ':app'
+include ':advertads'
+include ':lytics'

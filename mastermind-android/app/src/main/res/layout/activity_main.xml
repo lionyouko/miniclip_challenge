@@ -57,6 +57,19 @@
         app:layout_constraintStart_toStartOf="parent"
          />
 
+    <com.thelion.advertads.views.BannerView
+        android:id="@+id/bannerAd"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintBottom_toTopOf="@+id/buttonSubmit"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/ic_android_black_24dp"
+        app:refreshTime="5">
+
+    </com.thelion.advertads.views.BannerView>
+
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/buttonSubmit"
         android:visibility="invisible"

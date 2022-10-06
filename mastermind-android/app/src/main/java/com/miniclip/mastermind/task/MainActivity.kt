@@ -1,6 +1,5 @@
 package com.miniclip.mastermind.task
 
-import android.content.DialogInterface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -9,14 +8,15 @@ import android.widget.ImageView
 import android.widget.TableLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
-import androidx.core.view.marginBottom
 import com.miniclip.mastermind.task.elements.Board
 import com.miniclip.mastermind.task.types.ClueType
 import com.miniclip.mastermind.task.types.GameState
+import com.thelion.advertads.interfaces.BannerListener
+import com.thelion.advertads.views.BannerView
+import com.thelion.advertads.workers.ImageAdsDownloadHelper
+import com.thelion.advertads.workers.URLResourceHelper
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), BannerListener {
     private val board: Board = Board()
     private lateinit var table:TableLayout
     private lateinit var btnNewGame:Button
@@ -25,6 +25,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var smallLogo:ImageView
     private lateinit var bigLogo:ImageView
     private var firstNewGameClick = true
+
+    // Lion
+    private lateinit var bannerView: BannerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +51,9 @@ class MainActivity : AppCompatActivity() {
         btnClear.setOnClickListener {
             onClearButtonClick()
         }
+        
+        bannerView = findViewById(R.id.bannerAd)
+        setupBannerView()
     }
 
     override fun onBackPressed() {
@@ -127,5 +133,38 @@ class MainActivity : AppCompatActivity() {
     private fun onClearButtonClick() {
         board.clearCurrentRow()
         board.populateGame(table, applicationContext)
+
+    }
+
+    private fun setupBannerView(){
+        bannerView.setmAdDownloader(ImageAdsDownloadHelper.getInstance(getApplicationContext()))
+        bannerView.setUrlResourceHelper(URLResourceHelper())
+        bannerView.setmBannerListener(this);
+        lifecycle.addObserver(bannerView)
+        bannerView.downloadAds(this.applicationContext)
+        bannerView.setSizeAdImages(300,100);
+        bannerView.prepareAdImages()
+        
+    }
+
+    // Lion
+    override fun onBannerAdClicked() {
+        Toast.makeText(applicationContext, "Banner clicked",
+            Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onAdsLoaded() {
+        Toast.makeText(applicationContext, "Ads Loaded",
+            Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onBannerAdTriggered() {
+        Toast.makeText(applicationContext, "Banner Triggered",
+            Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onBannerAdDismissed() {
+        Toast.makeText(applicationContext, "Banner Dismissed",
+            Toast.LENGTH_SHORT).show()
     }
 }
