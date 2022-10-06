@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
-import android.view.View;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.FileAsyncHttpResponseHandler;
@@ -235,18 +234,7 @@ public class ImageAdsDownloadHelper implements AdDownloader {
      */
     public List<Bitmap> getCachedOnDiskImageAds(){
         return fromFileToImages(loadFromCache());
-//        List<Bitmap> listCachedImages = new ArrayList<Bitmap>();
-//        Log.d("ImageAdsDownloadHelper","adsDiskUrls size " + adsDiskUrls.size());
-//        for (String url : adsDiskUrls) {
-//            Bitmap bitmapResult = getBitmapFromDisk(url);
-//            Log.d("ImageAdsDownloadHelper","getCachedOnDiskImageAds " + "url: " + url);
-//            if (bitmapResult != null) {
-//                Log.d("ImageAdsDownloadHelper","bitmapResult not null");
-//                listCachedImages.add(bitmapResult);
-//            }
-//        }
-//
-//        return listCachedImages;
+
     }
 
     /**

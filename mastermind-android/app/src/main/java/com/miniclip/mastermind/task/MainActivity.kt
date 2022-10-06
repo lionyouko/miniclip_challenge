@@ -1,6 +1,5 @@
 package com.miniclip.mastermind.task
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -8,6 +7,7 @@ import android.widget.ImageView
 import android.widget.TableLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import com.miniclip.mastermind.task.elements.Board
 import com.miniclip.mastermind.task.types.ClueType
 import com.miniclip.mastermind.task.types.GameState
@@ -81,6 +81,9 @@ class MainActivity : AppCompatActivity(), BannerListener {
 
                     firstNewGameClick = false
 
+                    // Lion
+                    bannerView.visibility = View.VISIBLE
+
                     board.populateGame(table, applicationContext)
                 }.show()
         } else {
@@ -133,6 +136,7 @@ class MainActivity : AppCompatActivity(), BannerListener {
     private fun onClearButtonClick() {
         board.clearCurrentRow()
         board.populateGame(table, applicationContext)
+        bannerView.triggerBannerView()
 
     }
 
@@ -144,7 +148,11 @@ class MainActivity : AppCompatActivity(), BannerListener {
         bannerView.downloadAds(this.applicationContext)
         bannerView.setSizeAdImages(300,100);
         bannerView.prepareAdImages()
-        
+        // Here I want to show the add just when the person clicks to start a game and them keep it there
+        // If I let it there, it starts with activity taking the portion designed to it
+        // So it complies what is asked, but for demonstration, I want to start it only when player press play.
+        bannerView.visibility = View.GONE
+        bannerView.setOnClickListener(bannerView)
     }
 
     // Lion

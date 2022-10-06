@@ -31,23 +31,35 @@ import java.util.Random;
  * It can be triggered or dismissed by only one API call.
  * It is lifecycle-aware of its parent, and also is clickable.
  * The width and height can be programmatically configured via parent methods.
+ * Position can be configured via parent method
  * This class needs to know at least about a resource origin so it can provide it to the class that will
  * download the ads in setup stage before displaying them.
+ * This class still is clickable beyond the area occupied by current ad image displayed.
+ *
+ * See setupBannerView() to see the methods and their order in MainActivity.kt.
  */
 public class BannerView extends AppCompatImageView implements View.OnClickListener, DefaultLifecycleObserver {
 
 
-    private final float TO_MILLIS = 1000;
+    private final long TO_MILLIS = 1000;
+    private final long DEFAULT_MILLIS = 1000;
 
     private BannerListener mBannerListener;
     private AdDownloader mAdDownloader;
     private URLResourceHelper urlResourceHelper;
     private List<Bitmap> adImagesToDisplay = new ArrayList<>();
-    private int customSizeWidth = getWidth();
-    private int customSizeHeight = getHeight();
 
-    private long mRefreshTime = 5; // defaults ot 5 seconds
+    // Custom size for bitmap (current ad displayed)
+    private int customAdImageSizeWidth = getWidth();
+    private int customAdImageSizeHeight = getHeight();
+
+
+    private long mRefreshTime = 5; // defaults is 5 seconds
     private CountDownTimer refreshTimer;
+
+    //I would use the current image bitmap to try to find its position inside the area of the BannerView
+    //because the ad is clickable on all its area, not only currentAdImage is.
+    private Bitmap currentAdImage;
 
 
     /*
@@ -56,6 +68,7 @@ public class BannerView extends AppCompatImageView implements View.OnClickListen
 
     public BannerView(Context context) {
         super(context);
+
 
     }
 
@@ -128,9 +141,9 @@ public class BannerView extends AppCompatImageView implements View.OnClickListen
      */
     public void setSizeAdImages (int sizeX, int sizeY) {
         if (sizeX > 0)
-            this.customSizeWidth = sizeX;
+            this.customAdImageSizeWidth = sizeX;
         if (sizeY > 0)
-            this.customSizeHeight = sizeY;
+            this.customAdImageSizeHeight = sizeY;
     }
 
 
@@ -179,6 +192,21 @@ public class BannerView extends AppCompatImageView implements View.OnClickListen
 
 
     /**
+     * The API CALL to trigger the custom view (to show and show ads)
+     * It relies on onVisibilityChanged() method to stop or to start displaying the ad images
+     */
+    public void triggerBannerView() {
+        if (this.getVisibility() == View.VISIBLE) {
+            this.setVisibility(View.GONE);
+            this.mBannerListener.onBannerAdDismissed();
+
+        } else {
+            this.setVisibility(View.VISIBLE);
+            this.mBannerListener.onBannerAdTriggered();
+        }
+    }
+
+    /**
      * Makes the setup of variable members not related to the XML files of this custom view
      * I had a problem because the run of a Timer would not be able to modify the view, so I had to get the UIThread,
      * but it had multiple calls, so I had to use CountDownTimer. I know a millisInFuture must be set, so it can be set to:
@@ -200,14 +228,18 @@ public class BannerView extends AppCompatImageView implements View.OnClickListen
             }
         };
 
-        refreshTimer.start();
+        if (this.getVisibility() == VISIBLE) {
+            refreshTimer.start();
+        }
+
     }
 
     /**
      * Stop the refresh timer (used for lifecycle)
      */
     private void stopRefreshTimer(){
-        refreshTimer.cancel();
+        if (refreshTimer != null)
+            refreshTimer.cancel();
 
     }
 
@@ -216,7 +248,7 @@ public class BannerView extends AppCompatImageView implements View.OnClickListen
      */
     public void prepareAdImages() {
         this.loadAdImages();
-        this.scaleAdImages(this.customSizeWidth, this.customSizeHeight);
+        this.scaleAdImages(this.customAdImageSizeWidth, this.customAdImageSizeHeight);
     }
 
     /**
@@ -227,7 +259,8 @@ public class BannerView extends AppCompatImageView implements View.OnClickListen
     private void displayAdImages() {
         int imageIndex = new Random().nextInt(adImagesToDisplay.size());
         //Log.d("BannerView","adImagesToDisplay.Size() " + adImagesToDisplay.size());
-        this.setImageBitmap(adImagesToDisplay.get(imageIndex));
+        currentAdImage = adImagesToDisplay.get(imageIndex);
+        this.setImageBitmap(currentAdImage);
         //this.invalidate();
 
     }
@@ -238,7 +271,7 @@ public class BannerView extends AppCompatImageView implements View.OnClickListen
      * The default values are the original size of the image.
      * Comment: if the image is to long or tall it may cause problem (I just want to acknowledge about resizing images). 
      * Comment: when layout has wrap_content, width and height will be defaulted to 0, so ternary operator is used.
-     *
+     * Comment: I am aware of this way of scaling images https://www.informit.com/articles/article.aspx?p=2423187 .
      * @param scaledWidth the width that ad image should scale up
      * @param scaledHeight the height that ad image should scale up
      */
@@ -254,20 +287,35 @@ public class BannerView extends AppCompatImageView implements View.OnClickListen
         this.adImagesToDisplay = scaledAdImages;
     }
 
-
     /*
-------------------------- View.OnClick interface related functions   -------------------------
+------------------------- View.onVisibilityChange interface related functions   -------------------------
     */
 
-    /**
-     * This function is to show the dismissal of the Banner View
-     *
-     * @param view
-     */
+    @Override
+    public void onVisibilityChanged(View changedView, int visibility) {
+        super.onVisibilityChanged(changedView, visibility);
+        if (visibility == VISIBLE) {
+            setupRefreshTimer(DEFAULT_MILLIS*TO_MILLIS, mRefreshTime * TO_MILLIS);
+        } else if (visibility == GONE || visibility == INVISIBLE) {
+            stopRefreshTimer();
+        }
+
+    }
+
+    /*
+------------------------- View.onClick and listeners interface related functions   -------------------------
+    */
     @Override
     public void onClick(View view) {
         mBannerListener.onBannerAdClicked();
     }
+
+    @Override
+    public void setOnClickListener(@Nullable OnClickListener l) {
+        super.setOnClickListener(l);
+
+    }
+
 
     /*
     ------------------------- lifecycle functions to observe parent lifecycle  -------------------------
@@ -277,6 +325,7 @@ public class BannerView extends AppCompatImageView implements View.OnClickListen
     public void onResume(@NonNull LifecycleOwner owner) {
         DefaultLifecycleObserver.super.onResume(owner);
         Log.d("BannerView", "onResume");
+        //Just as example
         setupRefreshTimer(100000,3000);
     }
 
@@ -290,6 +339,7 @@ public class BannerView extends AppCompatImageView implements View.OnClickListen
     public void onCreate(@NonNull LifecycleOwner owner) {
         DefaultLifecycleObserver.super.onCreate(owner);
         Log.d("BannerView", "onCreate");
+        //Just as example
         setupRefreshTimer(100000,3000);
     }
 
@@ -312,6 +362,7 @@ public class BannerView extends AppCompatImageView implements View.OnClickListen
         DefaultLifecycleObserver.super.onDestroy(owner);
         Log.d("BannerView", "onDestroy");
         stopRefreshTimer();
+
     }
 
 
