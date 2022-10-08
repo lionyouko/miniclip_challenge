@@ -7,7 +7,7 @@ import java.util.List;
 
 /**
  * This is just a generic class ot provide URLs
- * The idea is to remember that a generic helper ( in thee role of a provider) could provide different types of resources
+ * The idea is to remember that a generic helper ( in the role of a provider) could provide different types of resources
  */
 public class URLResourceHelper implements ResourceGetter {
     private List<String> resources;

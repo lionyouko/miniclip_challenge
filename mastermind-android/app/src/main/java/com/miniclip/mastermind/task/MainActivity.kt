@@ -146,7 +146,7 @@ class MainActivity : AppCompatActivity(), BannerListener {
         bannerView.setmBannerListener(this);
         lifecycle.addObserver(bannerView)
         bannerView.downloadAds(this.applicationContext)
-        bannerView.setSizeAdImages(300,100);
+        bannerView.setSizeAdImages(300,100)
         bannerView.prepareAdImages()
         // Here I want to show the add just when the person clicks to start a game and them keep it there
         // If I let it there, it starts with activity taking the portion designed to it

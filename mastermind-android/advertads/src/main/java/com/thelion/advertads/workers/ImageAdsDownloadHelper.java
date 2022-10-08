@@ -67,7 +67,7 @@ public class ImageAdsDownloadHelper implements AdDownloader {
         Log.d("ImageAdsDownloadHelper"," diskCachePath " + diskCachePath);
 
         // There is some decisions that should be taken regarding this class.
-        // I am choosing to look for disk cache in the beginning, so it will not run createDiskCache all time
+        // I am choosing to look for disk cache in the beginning, so it will not run createDiskCache unnecessarily
         if (!diskCacheExists())
             createDiskCache();
 
@@ -75,9 +75,10 @@ public class ImageAdsDownloadHelper implements AdDownloader {
         // Get from cache first if any
         adsDiskUrls = fromFileToResourceUrl(loadFromCache());
 
-        // Parallel execution for downloading and writing ads
+        // Parallel execution for writing ad images in disk
         writeToCacheThread = Executors.newSingleThreadExecutor();
 
+        // Parallel execution for downloading ad images
         clientForDownloadAdImages = new AsyncHttpClient();
 
     }
@@ -305,7 +306,7 @@ public class ImageAdsDownloadHelper implements AdDownloader {
     }
 
     /**
-     * Helper function to make Files turn into Bitmaps (images)
+     * Helper function to make Files turn into Bitmaps (images). It outputs a Bitmap of 300x50 by default
      * @param files Array of Files that can be turned into Bitmap
      * @return
      */
