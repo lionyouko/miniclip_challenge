@@ -3,6 +3,7 @@ package com.thelion.advertads.typedefenums;
 import androidx.annotation.StringDef;
 
 /**
+ * (This enum was not used in the end, but I let it here with the ideas that I had for it)
  * The type def enum state of the banner ad to mimic a lifecycle of ad.
  *
  * Lifecycles are related to Fragments, Activities and Views, and we want to inform
