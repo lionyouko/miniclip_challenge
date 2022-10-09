@@ -15,6 +15,10 @@ import com.thelion.advertads.interfaces.BannerListener
 import com.thelion.advertads.views.BannerView
 import com.thelion.advertads.workers.ImageAdsDownloadHelper
 import com.thelion.advertads.workers.URLResourceHelper
+import com.thelion.lytics.builders.EventGeneratorBuilder
+import com.thelion.lytics.domain.EventGenerator
+import com.thelion.lytics.domain.Lytics
+import com.thelion.lytics.helpers.GameInfo
 
 class MainActivity : AppCompatActivity(), BannerListener {
     private val board: Board = Board()
@@ -26,8 +30,15 @@ class MainActivity : AppCompatActivity(), BannerListener {
     private lateinit var bigLogo:ImageView
     private var firstNewGameClick = true
 
-    // Lion
+    // Lion advertads
     private lateinit var bannerView: BannerView
+
+
+    // Lion lytics
+    private lateinit var eventGenerator: EventGenerator
+    private lateinit var lyticsApp: Lytics
+    private lateinit var mGameInfo: GameInfo
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,9 +62,18 @@ class MainActivity : AppCompatActivity(), BannerListener {
         btnClear.setOnClickListener {
             onClearButtonClick()
         }
-        
+
+        // Lion advertads
         bannerView = findViewById(R.id.bannerAd)
         setupBannerView()
+
+        // Lion lytics
+        val MOCK_USER_ID: Int = 2022
+        mGameInfo = GameInfo(MOCK_USER_ID, 20) // in seconds
+        lyticsApp = setupLytics(mGameInfo)
+        eventGenerator = defaultSetupEventGenerator()
+        eventGenerator.addObserver(lyticsApp)
+
     }
 
     override fun onBackPressed() {
@@ -139,7 +159,7 @@ class MainActivity : AppCompatActivity(), BannerListener {
         bannerView.triggerBannerView()
 
     }
-
+    // Lion advertads
     private fun setupBannerView(){
         bannerView.setmAdDownloader(ImageAdsDownloadHelper.getInstance(getApplicationContext()))
         bannerView.setUrlResourceHelper(URLResourceHelper())
@@ -155,7 +175,27 @@ class MainActivity : AppCompatActivity(), BannerListener {
         bannerView.setOnClickListener(bannerView)
     }
 
-    // Lion
+    // Lion lytics
+    private fun defaultSetupEventGenerator(): EventGenerator {
+        var egb: EventGeneratorBuilder = EventGeneratorBuilder.builder()
+        return egb.withInitFactory().withMatchFactory().withSessionFactory().build()
+    }
+
+    private fun setupEventGenerator(eventTypes:List<String>): EventGenerator {
+        var egb: EventGeneratorBuilder = EventGeneratorBuilder.builder()
+        for (etg: String in eventTypes) {
+            egb.withAnyFactory(etg)
+        }
+        return egb.build()
+    }
+
+    private fun setupLytics(gameInfo: GameInfo): Lytics {
+        return Lytics(gameInfo)
+    }
+
+
+
+    // Lion BannerListener
     override fun onBannerAdClicked() {
         Toast.makeText(applicationContext, "Banner clicked",
             Toast.LENGTH_SHORT).show()

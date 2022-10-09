@@ -1,9 +1,10 @@
-package com.thelion.lytics.helpers;
+package com.thelion.lytics.domain;
 
 import com.thelion.lytics.concretefactories.InitEventFactory;
 import com.thelion.lytics.concretefactories.MatchEventFactory;
 import com.thelion.lytics.concretefactories.SessionEventFactory;
 import com.thelion.lytics.events.Event;
+import com.thelion.lytics.helpers.ParametersHolder;
 import com.thelion.lytics.interfaces.AbstractEventFactory;
 import com.thelion.lytics.interfaces.EventListener;
 import com.thelion.lytics.typedefenums.EventTypes;
@@ -33,6 +34,8 @@ public class EventGenerator {
                 break;
             case EventTypes.SESSION:
                 this.eventFactories.put(eventType, SessionEventFactory.getInstance());
+                break;
+            default:
                 break;
         }
     }

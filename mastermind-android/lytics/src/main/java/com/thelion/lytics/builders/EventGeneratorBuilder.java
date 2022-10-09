@@ -1,6 +1,6 @@
 package com.thelion.lytics.builders;
 
-import com.thelion.lytics.helpers.EventGenerator;
+import com.thelion.lytics.domain.EventGenerator;
 import com.thelion.lytics.typedefenums.EventTypes;
 
 public class EventGeneratorBuilder {
@@ -30,7 +30,14 @@ public class EventGeneratorBuilder {
         return this;
     }
 
+    public EventGeneratorBuilder withAnyFactory(@EventTypes.EventTypeGiven String eventType) {
+        eventGenerator.addEventFactory(eventType);
+        return this;
+    }
+
     public EventGenerator build(){
+        
         return this.eventGenerator;
     }
+
 }
