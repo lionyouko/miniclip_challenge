@@ -3,6 +3,8 @@ Private Repository to Write The Process of Creating Two APIs for mini clip chall
 ---
 (Disclaimer: This document will probably have lots of versions as it will be built dynamically and accordingly to the necessity to add new formats of the sections along the sections themselves. I will try to maintain the document free of typos, but the my keyboard is broken)
 
+09102022 - A new disclaimer: mid way of this challenge I got Covid. So I lost a couple of days, and that may be seen reflected in my commits. I tried to make it to affect my performance minimally, but I got very tired. In a good side, I was already done with Advertads by time, and the analytics library sounded easier since from the beginning, so I will *probably* be able to finish it in 2 days. 
+
 Initial proposed sections:
 
 1. Reasoning about the challenge (include resources consulted in order to come up with an idea to solve)
@@ -82,6 +84,32 @@ I will write more about the code, but maybe the library's code speak for itself.
 - The ImageAdsDownloadHelper does 2 types of work (it, thus, could have been broken down it two classes): to store the resources downloaded, and to download them. This class will recover cached resources in the constructor, and will avoid to download the resources by checking the stored name of the files, compared with the url of the about-to-be-download resources. It will skip if the cached file names are the url of the resource desired (this is to show that a developer must find strategies avoid network usage if not stricly necessary. Memory is cheap, Time and mobile data not that much).
 - The library needs to require (or even to inherit) permission to use network and to read and write on external storage. I required it by android manifeest declaration. 
 
+1. For *analytics*:
+
+I thought since from the beginning that this one would be less difficult to implement, and in part I was right. The difficult is to have lots of choices to provide a maintable future for the library. I tried to do that with complexity that may look overwhelming at first, but hopefully helps to maintain the app as long as more events are needed. 
+
+I used Factory and Strategy to build the events. Each event has its own concrete factory with a concrete strategy to create it. Events itself are represented in a interface and concrete class. Since all events are basically built the same, we could have a very simplistic approach not differentiating them aside for the type. I chose to have factories and strategies for each one hoping it come in handy in future (imaginatively speaking). 
+
+We also have two elements that clients need to use: one is domain.Lytic class and the other is domain.EventGenerator class. 
+The lytic class will provide handling for the events emited from event generator, being a listener to it, and event generator will be called in appropriate moments of the fragment, activities lifecycle or app logic. After buiding the BannerView, that was pretty straighforward to perceive and conceive.
+
+I tried to reinforce the types of the Events anyway with a typedefenum class that is being used across the library in such a way that if one wants to create an event of certain kind, the string passed must be one of the actual possible ones defined in typedefenum. I also use it inside the factories. It is used across the library, as I said, in various forms. That typedefenum allows user to choose between INIT, SESSION, and MATCH event types.
+
+That all was just the very basic part of the library, the core for the funcionality. The second part is to find a way to denote which parameters are possible for each type of event. 
+
+Lastly, to incorporate listeners for the EventGenerator so it is called in the right time. 
+
+Lots of classes, like event, strategies, factories, have either an abstract class or interface counterpart. That means we want to connect these elements via abstraction, not via hard relationships. If in future somebody comes up with more strategies, factories and etc, it will propably work just fine. 
+
+I also have provided smaller helper classes, like GameInfo, Parameter and ParametersHolder. We want to save the parameters in a parameter holder, instead of using just a List<Parameter> loosely. In GameInfo, the client can setup userid and the time to save the the events on disk. To save the events, I will use the same strategy as in bannerview, for demonstration purposes. I will find the cache storage of the app and save the files there. Before saving them I will transform the event in a string with JSON format. I am not intending to provide any desserization feature as it was not asked. But that can be made using smply Gson or similars.
+
+For the time scheduled to save the events, I will use the same clock I used in bannerView for demonstration purposes. What is important here is to have a parallel thread that can be stopped if the app is finished, very much like we did in the banner view as that custom view was a lifecycle observer. So any type of clock that does that will be fine for us. We want to avoid any type of taxing thing running as zombie even after app is gone.
+
+Lastly, but not least, I could not find a sugar way to setup the elements of the library. One needs to make a function of the kind setup and make the steps to build the lytic and the event generator. Event generator has a builder that can be used. Builder provides 3 main factories for events, and a fourth method to send any string. Since Event Generator checks if the String is part of EventType typedefenums. If it is not, it WILL NOT COMPLAIN, because I put that function for just a remainder that if we instead wanted to provided only one function accepting event type argument, we coud, as event generator checks if the string provided is a event type. Lytic class accepts a GameInfo as argument, so one need to prepare the gameinfo and give to the Lytic. 
+
+The project will have the code all setup to show things running, so one can go and check example of setup withing the MainActivity.kt.
+
+I had no necessity to search for new resources for this library. I could handle it by what I found while making Advertads library.
 
 ## General Tasks
 
