@@ -84,7 +84,7 @@ I will write more about the code, but maybe the library's code speak for itself.
 - The ImageAdsDownloadHelper does 2 types of work (it, thus, could have been broken down it two classes): to store the resources downloaded, and to download them. This class will recover cached resources in the constructor, and will avoid to download the resources by checking the stored name of the files, compared with the url of the about-to-be-download resources. It will skip if the cached file names are the url of the resource desired (this is to show that a developer must find strategies avoid network usage if not stricly necessary. Memory is cheap, Time and mobile data not that much).
 - The library needs to require (or even to inherit) permission to use network and to read and write on external storage. I required it by android manifeest declaration. 
 
-1. For *analytics*:
+2. For *analytics*:
 
 I thought since from the beginning that this one would be less difficult to implement, and in part I was right. The difficult is to have lots of choices to provide a maintable future for the library. I tried to do that with complexity that may look overwhelming at first, but hopefully helps to maintain the app as long as more events are needed. 
 
@@ -119,3 +119,7 @@ Here I will put each of the general tasks to try complete the challenge.
 - [x] Check methods to implement function calls outside android main thread (eg asyncTasks (deprecated?), etc)
 - [x] Check methods to implement functional calls supporting event-driven design (eg RxJava). 
 - [x] Imagine a Domain Model for the application (BannerView and classes to implement helping specialized tasks/concerns)
+   
+## How to install Advertads
+   
+## How to install Lytics
