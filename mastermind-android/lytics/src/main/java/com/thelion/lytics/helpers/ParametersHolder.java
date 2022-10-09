@@ -2,17 +2,23 @@ package com.thelion.lytics.helpers;
 
 
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ParametersHolder {
     List<Parameter> parameters;
 
-    public ParametersHolder(List<Parameter> parameters) {
-        this.parameters = parameters;
+    public ParametersHolder() {
+        this.parameters = new ArrayList<>();
     }
 
     public List<Parameter> getParameters() {
         return this.parameters;
+    }
+
+    public void setParameters(Parameter... parameters){
+        this.parameters= Arrays.asList(parameters);
     }
 
 }
