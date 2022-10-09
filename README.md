@@ -3,7 +3,9 @@ Private Repository to Write The Process of Creating Two APIs for mini clip chall
 ---
 (Disclaimer: This document will probably have lots of versions as it will be built dynamically and accordingly to the necessity to add new formats of the sections along the sections themselves. I will try to maintain the document free of typos, but the my keyboard is broken)
 
-09102022 - A new disclaimer: mid way of this challenge I got Covid. So I lost a couple of days, and that may be seen reflected in my commits. I tried to make it to affect my performance minimally, but I got very tired. In a good side, I was already done with Advertads by time, and the analytics library sounded easier since from the beginning, so I will *probably* be able to finish it in 2 days. 
+09102022 
+- A new disclaimer: mid way of this challenge I got Covid. So I lost a couple of days, and that may be seen reflected in my commits. I tried to make it to affect my performance minimally, but I got very tired. In a good side, I was already done with Advertads by time, and the analytics library sounded easier since from the beginning, so I will *probably* be able to finish it in 2 days. 
+- It is very important to notice that the code will have comments that aren't the type of thing that goes on javadocs. I had to have those comments, aside from, for example, the "pure" class description to assure I was explaining the process, and trying to facilitate the understanding about certain decisions.
 
 Initial proposed sections:
 
@@ -88,14 +90,18 @@ I will write more about the code, but maybe the library's code speak for itself.
 
 I thought since from the beginning that this one would be less difficult to implement, and in part I was right. The difficult is to have lots of choices to provide a maintable future for the library. I tried to do that with complexity that may look overwhelming at first, but hopefully helps to maintain the app as long as more events are needed. 
 
-I used Factory and Strategy to build the events. Each event has its own concrete factory with a concrete strategy to create it. Events itself are represented in a interface and concrete class. Since all events are basically built the same, we could have a very simplistic approach not differentiating them aside for the type. I chose to have factories and strategies for each one hoping it come in handy in future (imaginatively speaking). 
+I used Factory and Strategy to build the events. Each event has its own concrete factory with a concrete strategy to create it. Events itself are represented in an abstract class and a concrete class. Since all events are basically built the same, we could have a very simplistic approach not differentiating them aside for the type. I chose to have factories and strategies for each one hoping it come in handy in future (imaginatively speaking). 
+
+(update late night sunday 091022: 
+ - after reading better the challenge text, I had to change the library. Despite the library offering the three main events described in challenge text, a client may want to build any type of other events. So, I had to take away typedef enums (@StringDef annotation) and let the client create its own types of events. I was thinking about a case where the library developers would deliver, in each interation, new types of events that could be used. I got confused by the text, but now seems that all types of events should be allowed. That made me regret to build a more complex system, because the library could be reduced to very few classes, basically Lytics, EventGenerator (and its builder), Event, ConcreteEvent, all necessary interfaces, GameInfo, the handlers, and helpers. No strategies or factories at all. I want this clear that I was aware about this other path, but had no time to develop it new again).
+ - Although sad, I will still make use of what was done, and a client will still need to program its own strategy, and factory if they want to make a new event. They can dinamycally add the new event type into a event type class that will be used to check if an event received is fr the type client wanted.
 
 We also have two elements that clients need to use: one is domain.Lytic class and the other is domain.EventGenerator class. 
 The lytic class will provide handling for the events emited from event generator, being a listener to it, and event generator will be called in appropriate moments of the fragment, activities lifecycle or app logic. After buiding the BannerView, that was pretty straighforward to perceive and conceive.
 
-I tried to reinforce the types of the Events anyway with a typedefenum class that is being used across the library in such a way that if one wants to create an event of certain kind, the string passed must be one of the actual possible ones defined in typedefenum. I also use it inside the factories. It is used across the library, as I said, in various forms. That typedefenum allows user to choose between INIT, SESSION, and MATCH event types.
+~~I tried to reinforce the types of the Events anyway with a typedefenum class that is being used across the library in such a way that if one wants to create an event of certain kind, the string passed must be one of the actual possible ones defined in typedefenum. I also use it inside the factories. It is used across the library, as I said, in various forms. That typedefenum allows user to choose between INIT, SESSION, and MATCH event types.~~ : this decision was impossibilitating clients to create their own events. I will let the typedef enum class in project just for discussion purposes, because the chalenge is not only about completing the task, but the process of doing it also.
 
-That all was just the very basic part of the library, the core for the funcionality. The second part is to find a way to denote which parameters are possible for each type of event. 
+That all was just the very basic part of the library, the core for the funcionality. The second part is to find a way to denote which parameters are possible for each type of event. As I have no control over this, because client will be able to make their own events, I may just provide an example for the game events asked in challenge. 
 
 Lastly, to incorporate listeners for the EventGenerator so it is called in the right time. 
 
@@ -105,7 +111,15 @@ I also have provided smaller helper classes, like GameInfo, Parameter and Parame
 
 For the time scheduled to save the events, I will use the same clock I used in bannerView for demonstration purposes. What is important here is to have a parallel thread that can be stopped if the app is finished, very much like we did in the banner view as that custom view was a lifecycle observer. So any type of clock that does that will be fine for us. We want to avoid any type of taxing thing running as zombie even after app is gone.
 
-Lastly, but not least, I could not find a sugar way to setup the elements of the library. One needs to make a function of the kind setup and make the steps to build the lytic and the event generator. Event generator has a builder that can be used. Builder provides 3 main factories for events, and a fourth method to send any string. Since Event Generator checks if the String is part of EventType typedefenums. If it is not, it WILL NOT COMPLAIN, because I put that function for just a remainder that if we instead wanted to provided only one function accepting event type argument, we coud, as event generator checks if the string provided is a event type. Lytic class accepts a GameInfo as argument, so one need to prepare the gameinfo and give to the Lytic. 
+Lastly, but not least, I could not find a sugar way to setup the elements of the library. One needs to make a function of the kind setup and make the steps to build the lytic and the event generator. Event generator has a builder that can be used. Builder provides 3 main factories for events, and a fourth method to send any string. Since Event Generator checks if the String is part of EventType, a client can put a new event type in that class just to make sure that only certain events are allowed. 
+
+In other words, a client, to have a new Event, will need to :
+ - have a EventType class instantiated and provided to the event generator class. 
+ - have a factory for that new event, extended from abstract event factory
+ - have a strategy for the factory that creates that event, implementing CreateEventStrategy class.
+ 
+ 
+Lytic class accepts a GameInfo as argument, so one need to prepare the gameinfo and give to the Lytic. 
 
 The project will have the code all setup to show things running, so one can go and check example of setup withing the MainActivity.kt.
 
