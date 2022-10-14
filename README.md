@@ -159,7 +159,7 @@ Here I will put each of the general tasks to try complete the challenge.
 - [x] Check methods to implement functional calls supporting event-driven design (eg RxJava). 
 - [x] Imagine a Domain Model for the application (BannerView and classes to implement helping specialized tasks/concerns)
    
-## How to install Advertads
+## How to install Advertads## How to install Advertads
 
 Both libraries are independent of each other and agnostic to the surrounding app. To install, one must add the library as regularly would do via android studio. As the library is not hosted in any public repository (like mavenCentral(), for instance), it must be added by hand after downloaded.
 
@@ -170,3 +170,14 @@ As an AAR is put available, one can follow this tutorial to use it (it is just t
 Both libraries are independent of each other and agnostic to the surrounding app. To install, one must add the library as regularly would do via android studio. As the library is not hosted in any public repository (like mavenCentral(), for instance), it must be added by hand after downloaded.
 
 As an AAR is put available, one can follow this tutorial to use it (it is just the regular "adding a library" procedure): https://developer.android.com/studio/projects/android-library
+
+## Difficulties and final considerations
+
+If You want to open the project in android studio, you can, ad doing so, you can see some Logs, as I wasnt able to build tests.
+
+Tags starts with class name. For exampe, Lytics.
+
+1. Lytics: Althought I believe the libray saves file correctly, I had to produce the events said from challenge and had to trigger them in mastermind accordingly. Despite the fact that I show that lytics works, I am sending an apk which code has some error for match event duration. It sometimes does not record it well, but it is just a question that I had no time to debug where to call correctly the change in the variables responsible to save the beginning time of the match and the final time of the match.An initial versio of lytics would enable developer to create new handlers and new storers. I erase all of that in order to finish the challenge faster. This library maybe should be incorporated into some class that has ample view of the application, or it should be made a singleton shared by any component that would like to use it to send events. I did not implemented it as singleton, in the end. Still, a lytics instance can listen various components.
+
+2. Advertads: I think the setup of the banner may be extensive, but I tried to provide code that could be changed later on from a fellow developer. It was made with that in mind. Differently from lytics that can accept custom events, but is smaller library. I had to research more in order to finish this library and I used what I learned for lytics too (mainly lifecycle). 
+
