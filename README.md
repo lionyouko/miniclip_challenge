@@ -88,40 +88,44 @@ I will write more about the code, but maybe the library's code speak for itself.
 
 2. For *analytics*:
 
-I thought since from the beginning that this one would be less difficult to implement, and in part I was right. The difficult is to have lots of choices to provide a maintable future for the library. I tried to do that with complexity that may look overwhelming at first, but hopefully helps to maintain the app as long as more events are needed. 
+(Update 141022 : Please, compare with the previous commit to see the text before major change in reasoning for analytics library)
 
-I used Factory and Strategy to build the events. Each event has its own concrete factory with a concrete strategy to create it. Events itself are represented in an abstract class and a concrete class. Since all events are basically built the same, we could have a very simplistic approach not differentiating them aside for the type. I chose to have factories and strategies for each one hoping it come in handy in future (imaginatively speaking). 
+I had to finish the challenge, and head got very scrambled by covid. 
 
-(update late night sunday 091022: 
- - after reading better the challenge text, I had to change the library. Despite the library offering the three main events described in challenge text, a client may want to build any type of other events. So, I had to take away typedef enums (@StringDef annotation) and let the client create its own types of events. I was thinking about a case where the library developers would deliver, in each interation, new types of events that could be used. I got confused by the text, but now seems that all types of events should be allowed. That made me regret to build a more complex system, because the library could be reduced to very few classes, basically Lytics, EventGenerator (and its builder), Event, ConcreteEvent, all necessary interfaces, GameInfo, the handlers, and helpers. No strategies or factories at all. I want this clear that I was aware about this other path, but had no time to develop it new again).
- - Although sad, I will still make use of what was done, and a client will still need to program its own strategy, and factory if they want to make a new event. They can dinamycally add the new event type into a event type class that will be used to check if an event received is fr the type client wanted.
+For analytics library, I had to change the entire way that I was thinking into make it. Before I had stipulated factories and strategies to create events, and would enforce a client to do so if it wanted to have new customm events. That was a major burden. Instead of that, I simplified and tried to really offer a more simple and closed library.
 
-We also have two elements that clients need to use: one is domain.Lytic class and the other is domain.EventGenerator class. 
-The lytic class will provide handling for the events emited from event generator, being a listener to it, and event generator will be called in appropriate moments of the fragment, activities lifecycle or app logic. After buiding the BannerView, that was pretty straighforward to perceive and conceive.
+Now what one needs to do is to create its events the way it needs and just to send to Lytics instance. Lytics as default implementation for LyticsEventListener in which it handles the events that comes and will save them properly via a Storer class. Properly means withing a specified time frequency or when the other constraints are applicable (like when app goes to the background, for example).
 
-~~I tried to reinforce the types of the Events anyway with a typedefenum class that is being used across the library in such a way that if one wants to create an event of certain kind, the string passed must be one of the actual possible ones defined in typedefenum. I also use it inside the factories. It is used across the library, as I said, in various forms. That typedefenum allows user to choose between INIT, SESSION, and MATCH event types.~~ : this decision was impossibilitating clients to create their own events. I will let the typedef enum class in project just for discussion purposes, because the chalenge is not only about completing the task, but the process of doing it also.
+So, in the end, instead of proving the events described in the challenge, I simply provided the platform, and in Mastermind I implemented some of the Events and their logic to trigger just to show the library working. 
 
-That all was just the very basic part of the library, the core for the funcionality. The second part is to find a way to denote which parameters are possible for each type of event. As I have no control over this, because client will be able to make their own events, I may just provide an example for the game events asked in challenge. 
+If one wants to send events to the Lytics, one can setup it as LyticEventListener, and then send events to it as pleased in any moment of the game or appication lifecycle.
 
-Lastly, to incorporate listeners for the EventGenerator so it is called in the right time. 
+I recognise that certain functions related to lifecycle my be triggered incorrectly, for example, Lytics instance is a DefaultLyfecycleObserver, so if a rotation happens, it may store the events.
 
-Lots of classes, like event, strategies, factories, have either an abstract class or interface counterpart. That means we want to connect these elements via abstraction, not via hard relationships. If in future somebody comes up with more strategies, factories and etc, it will propably work just fine. 
+Another drawback is that, while the same lytics instance can be linked to many components, and thus receiving events from many components (one just need to send them to lytics instance), such instance would be better if associated with a more central element  that could have access to many components and access to the app lifecycle instead. Anyway, it is possible to set lytics as observer of many lifecycles, so one client just needs to share lytics instance in components that may need it. 
 
-I also have provided smaller helper classes, like GameInfo, Parameter and ParametersHolder. We want to save the parameters in a parameter holder, instead of using just a List<Parameter> loosely. In GameInfo, the client can setup userid and the time to save the the events on disk. To save the events, I will use the same strategy as in bannerview, for demonstration purposes. I will find the cache storage of the app and save the files there. Before saving them I will transform the event in a string with JSON format. I am not intending to provide any desserization feature as it was not asked. But that can be made using smply Gson or similars.
+For this library, I had to enforce certain versions of SDK (ex. api = Build.VERSION_CODES.O). Although we want to make the dependency of such things the smaller possible, for this ocasion it will not impose any major burden in use by as the versions needed are old. The times this happened was to use, for example, Instance.now().getEpochSecond(), a function to provide an easy time stamp.
 
-For the time scheduled to save the events, I will use the same clock I used in bannerView for demonstration purposes. What is important here is to have a parallel thread that can be stopped if the app is finished, very much like we did in the banner view as that custom view was a lifecycle observer. So any type of clock that does that will be fine for us. We want to avoid any type of taxing thing running as zombie even after app is gone.
+I had the idea to provide an event generator, or to enforce which custom events could be created as client would first to register the event name before using it. I abandoned all of this. I have no control over which kind of events are needed and when they must be triggered, so I focused all the effort in Lytics class and its ability to save the events into files. From the commit before to this one, many classes are deleted from the project because of that.
 
-Lastly, but not least, I could not find a sugar way to setup the elements of the library. One needs to make a function of the kind setup and make the steps to build the lytic and the event generator. Event generator has a builder that can be used. Builder provides 3 main factories for events, and a fourth method to send any string. Since Event Generator checks if the String is part of EventType, a client can put a new event type in that class just to make sure that only certain events are allowed. 
+Lytics library comes with some of the following classes:
 
-In other words, a client, to have a new Event, will need to :
- - have a EventType class instantiated and provided to the event generator class. 
- - have a factory for that new event, extended from abstract event factory
- - have a strategy for the factory that creates that event, implementing CreateEventStrategy class.
- 
- 
-Lytic class accepts a GameInfo as argument, so one need to prepare the gameinfo and give to the Lytic. 
+domain.Lytics - this class has a handler for events that arrives, and this handler sends the events to a storage that will save them into a file. Before having the major change, I would provide ways to let user to have lots of handlers and storages (storers). I cut all of that and focused into finishing the saving ability of the library. Lytics is an LyticEventListener, so any class that wants to have it as listener can simply use it and it will take care of events.
 
-The project will have the code all setup to show things running, so one can go and check example of setup withing the MainActivity.kt.
+events.Event - this is an abstract class with the basics of what the event should look like. Any event extending this class will be accepted by lytics library.
+
+events.ConcreteEvent - this is a concrete class if one want to use a out-of-the-box general purpose event. It implements the a serialization in json string format for itself. This function is called as no library for serialization was used (by this time). One could use Gson, instead. I opted to simply serialize it in a small function. 
+
+helpers.Parameter and ParameterHolder - these classes are used in Event. Event has a parameter holder that holds many parameters. parameter class is composed by a String key and by a T value of any kind. When serializing into json string, I simply check if T type is String, and if so, it is saved with single quotes around it, otherwise it is save as is, then mimicking json format correctly.
+
+helpers.GameInfo - it as small class to save user_id and time-frequency. Must be provided to new lytics app instance.
+
+builders.ConcreteEventBuilder - One of the uses of the concrete event is to have the concrete event builder. One can add as many paraameters as needed before building aa concrete event. Just make sure to provide a name also, as all events must need a name (like init, session, match).
+
+helpers.FileHelper - this class has many utilities, for example, to extract the timestamp from a standard file name of the type <user_id>_<creationtimestamp>, or creating a standard filename of that same format.
+
+
+The project will have the code all setup to show things running, so one can go and check example of setup in the MainActivity.kt.
 
 I had no necessity to search for new resources for this library. I could handle it by what I found while making Advertads library.
 
@@ -135,5 +139,9 @@ Here I will put each of the general tasks to try complete the challenge.
 - [x] Imagine a Domain Model for the application (BannerView and classes to implement helping specialized tasks/concerns)
    
 ## How to install Advertads
+
+Both libraries are independent of each other and agnostic to the surrounding app. To install, one must add the library as regularly would do via android studio. As the library is not hosted in any public repository (like mavenCentral(), for instance), it must be added by hand after downloaded.
    
 ## How to install Lytics
+
+Both libraries are independent of each other and agnostic to the surrounding app. To install, one must add the library as regularly would do via android studio. As the library is not hosted in any public repository (like mavenCentral(), for instance), it must be added by hand after downloaded.
