@@ -86,6 +86,7 @@ I will write more about the code, but maybe the library's code speak for itself.
 - The ImageAdsDownloadHelper does 2 types of work (it, thus, could have been broken down it two classes): to store the resources downloaded, and to download them. This class will recover cached resources in the constructor, and will avoid to download the resources by checking the stored name of the files, compared with the url of the about-to-be-download resources. It will skip if the cached file names are the url of the resource desired (this is to show that a developer must find strategies avoid network usage if not stricly necessary. Memory is cheap, Time and mobile data not that much).
 - The library needs to require (or even to inherit) permission to use network and to read and write on external storage. I required it by android manifeest declaration. 
 
+---
 2. For *analytics*:
 
 (Update 141022 : Please, compare with the previous commit to see the text before major change in reasoning for analytics library)
@@ -108,6 +109,7 @@ For this library, I had to enforce certain versions of SDK (ex. api = Build.VERS
 
 I had the idea to provide an event generator, or to enforce which custom events could be created as client would first to register the event name before using it. I abandoned all of this. I have no control over which kind of events are needed and when they must be triggered, so I focused all the effort in Lytics class and its ability to save the events into files. From the commit before to this one, many classes are deleted from the project because of that.
 
+
 Lytics library comes with some of the following classes:
 
 domain.Lytics - this class has a handler for events that arrives, and this handler sends the events to a storage that will save them into a file. Before having the major change, I would provide ways to let user to have lots of handlers and storages (storers). I cut all of that and focused into finishing the saving ability of the library. Lytics is an LyticEventListener, so any class that wants to have it as listener can simply use it and it will take care of events.
@@ -124,11 +126,21 @@ builders.ConcreteEventBuilder - One of the uses of the concrete event is to have
 
 helpers.FileHelper - this class has many utilities, for example, to extract the timestamp from a standard file name of the type <user_id>_<creationtimestamp>, or creating a standard filename of that same format.
 
-
+---
 The project will have the code all setup to show things running, so one can go and check example of setup in the MainActivity.kt.
 
 I had no necessity to search for new resources for this library. I could handle it by what I found while making Advertads library.
 
+---
+   
+In order to show lytics working, I implemented init, session and match events, as asked by the challenge. 
+
+I could not, however, find certaain attributes to be used, so I mock them. For instance, there is no advertising_tracking_enabled or advertising_id. This should come from an external library, and since advertads is not linked to lytics, lytics could not assume advertads could have such variables, for example. And I have no such attributes on bannerview as I implemented a view able to show ads, but image ads can come from different sources. 
+   
+
+While for the first library, I tried to implement something that is open to change, in the second, I focused into deliver small applicaton able to solve the challenge. It was a bit difficult, as I may have mentioned before, to set which part I should code solely thinking about somebody using the library out of the box, and which part I would code having in mind a fellow developer reading my code and thinking about extending it. For the advertads library, I had more time and I was feeling better (no covid), so I started with the idea of letting info on how to extend it. For the second, I just tried to solve it. Also info that is pertained to the challenge is put over the code, so, not necessarily, the javadoc of a function or class would be exactly like it is written in a non-challenge situation. I hope to have opportunity to explict what is what during the interview if any is not clear.
+   
+   
 ## General Tasks
 
 Here I will put each of the general tasks to try complete the challenge.
