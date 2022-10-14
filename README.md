@@ -3,6 +3,15 @@ Private Repository to Write The Process of Creating Two APIs for mini clip chall
 ---
 (Disclaimer: This document will probably have lots of versions as it will be built dynamically and accordingly to the necessity to add new formats of the sections along the sections themselves. I will try to maintain the document free of typos, but the my keyboard is broken)
 
+~~(The project has some bug related to the .png files. So when I tried to produce a release version of the apk, gradle was giving an error of the type "/ic_launcher.png: AAPT: error: file failed to compile.". So I am letting the debug version, and here is some tracking of the issue (it is not new, but still happening)~~: 
+
+- https://stackoverflow.com/questions/65574926/ic-launcher-png-aapt-error-file-not-found-in-android-studio-v4-1-1
+- https://issuetracker.google.com/issues/172048751
+
+I had to solve a bug where the png files available in the miniclip challenge project were giving an AAPT error. I found a soluton here: https://stackoverflow.com/questions/46177560/failed-to-read-png-signature-file-does-not-start-with-png-signature
+
+What I had to do was to rename some of the png files to jpg, because they were in fact, jpg. So I was able to get aar files.
+
 09102022 
 - A new disclaimer: mid way of this challenge I got Covid. So I lost a couple of days, and that may be seen reflected in my commits. I tried to make it to affect my performance minimally, but I got very tired. In a good side, I was already done with Advertads by time, and the analytics library sounded easier since from the beginning, so I will *probably* be able to finish it in 2 days. 
 - It is very important to notice that the code will have comments that aren't the type of thing that goes on javadocs. I had to have those comments, aside from, for example, the "pure" class description to assure I was explaining the process, and trying to facilitate the understanding about certain decisions.
@@ -153,7 +162,11 @@ Here I will put each of the general tasks to try complete the challenge.
 ## How to install Advertads
 
 Both libraries are independent of each other and agnostic to the surrounding app. To install, one must add the library as regularly would do via android studio. As the library is not hosted in any public repository (like mavenCentral(), for instance), it must be added by hand after downloaded.
+
+As an AAR is put available, one can follow this tutorial to use it (it is just the regular "adding a library" procedure): https://developer.android.com/studio/projects/android-library
    
 ## How to install Lytics
 
 Both libraries are independent of each other and agnostic to the surrounding app. To install, one must add the library as regularly would do via android studio. As the library is not hosted in any public repository (like mavenCentral(), for instance), it must be added by hand after downloaded.
+
+As an AAR is put available, one can follow this tutorial to use it (it is just the regular "adding a library" procedure): https://developer.android.com/studio/projects/android-library
