@@ -2,6 +2,10 @@ package com.thelion.advertads.typedefenums;
 
 import androidx.annotation.StringDef;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+
 /**
  * (This enum was not used in the end, but I let it here with the ideas that I had for it)
  * The type def enum state of the banner ad to mimic a lifecycle of ad.
@@ -29,6 +33,8 @@ public class BannerState {
     public static final String READY = "READY";
     public static final String STOPPED = "STOPPED";
 
+
+    @Retention(RetentionPolicy.SOURCE)
     @StringDef({STARTING,READY, STOPPED})
     public @interface BannerStateGiven{}
 
