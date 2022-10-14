@@ -1,29 +1,71 @@
 package com.thelion.lytics.events;
 
-import com.thelion.lytics.helpers.EventJsonFormatDiskStorer;
+import android.os.Build;
+import android.util.Log;
+
 import com.thelion.lytics.helpers.Parameter;
 import com.thelion.lytics.helpers.ParametersHolder;
-import com.thelion.lytics.interfaces.EventStorer;
-import com.thelion.lytics.typedefenums.EventTypes;
 
-import org.json.JSONObject;
-
+import java.time.Instant;
 import java.util.List;
 
-public abstract class Event {
-    private @EventTypes.EventTypeGiven String NAME;
-    private ParametersHolder parametersHolder;
-    private EventStorer eventStorer;
 
-    public Event(@EventTypes.EventTypeGiven String name, ParametersHolder parametersHolder){
+/**
+ * Abstract class from where other events may be created
+ * A client may want to create new type of event, it just needs to add those types in Event Type Creator.
+ *
+ */
+public abstract class Event {
+    private String NAME;
+    private ParametersHolder parametersHolder;
+    private long creationTimeStamp;
+
+
+    /**
+     * Constructor if you want to provide your own parameter holder
+     * @param name
+     * @param parametersHolder
+     */
+    public Event(String name, ParametersHolder parametersHolder){
         this.NAME = name;
         this.parametersHolder = parametersHolder;
 
-        //defaults to write on disk as json
-        this.eventStorer = new EventJsonFormatDiskStorer();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            this.creationTimeStamp = Instant.now().getEpochSecond();
+
+        }
+
     }
 
-    public @EventTypes.EventTypeGiven String getName() {
+    /**
+     * Simpler constructor with a name for the event
+     * @param name the name - type of the custom event
+     */
+    public Event(String name){
+        this.NAME = name;
+        this.parametersHolder = new ParametersHolder();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            this.creationTimeStamp = Instant.now().getEpochSecond();
+
+        }
+    }
+
+    /**
+     * Simpler construtor for a desired event builder
+     */
+    public Event(){
+        this.parametersHolder = new ParametersHolder();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            this.creationTimeStamp = Instant.now().getEpochSecond();
+
+        }
+    }
+
+    public void setName(String name) {
+        this.NAME = name;
+    }
+    public String getName() {
         return this.NAME;
     }
 
@@ -31,10 +73,16 @@ public abstract class Event {
         return this.parametersHolder.getParameters();
     }
 
+
+    public void addParameter(Parameter p){
+        this.parametersHolder.addParameters(p);
+    }
+
+    public long getTimeStamp(){
+        return this.creationTimeStamp;
+    }
+
     public abstract String asJSONString();
 
-    public void recordEvent(){
-        this.eventStorer.storeEvent(this);
-    }
 
 }

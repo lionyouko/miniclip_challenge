@@ -2,28 +2,28 @@ package com.thelion.lytics.helpers;
 
 public class GameInfo {
     private final int TO_MILLIS = 1000;
-    private int currentUserId;
-    private long timeFrequency;
+    private String currentUserId;
+    private int timeFrequency;
 
 
-    public GameInfo(int currentUserId, long timeFrequency) {
+    public GameInfo(String currentUserId, int timeFrequency) {
         this.currentUserId = currentUserId;
         this.timeFrequency = timeFrequency * TO_MILLIS;
     }
 
-    public int getCurrentUserId() {
+    public String getCurrentUserId() {
         return currentUserId;
     }
 
-    public void setCurrentUserId(int currentUserId) {
+    public void setCurrentUserId(String currentUserId) {
         this.currentUserId = currentUserId;
     }
 
-    public long getTimeFrequency() {
+    public int getTimeFrequency() {
         return timeFrequency;
     }
 
-    public void setTimeFrequency(long timeFrequency) {
+    public void setTimeFrequency(int timeFrequency) {
         this.timeFrequency = timeFrequency;
     }
 }

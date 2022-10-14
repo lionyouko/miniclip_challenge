@@ -17,8 +17,9 @@ public class ParametersHolder {
         return this.parameters;
     }
 
-    public void setParameters(Parameter... parameters){
-        this.parameters= Arrays.asList(parameters);
+    public void addParameters(Parameter... parameters) {
+        this.parameters.addAll(Arrays.asList(parameters));
     }
+
 
 }

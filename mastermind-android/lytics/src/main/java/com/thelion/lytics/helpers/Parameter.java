@@ -1,14 +1,13 @@
 package com.thelion.lytics.helpers;
 
-import org.json.JSONObject;
 
-public class Parameter {
+public class Parameter <T>{
     private String key;
-    private JSONObject values;
+    private T value;
 
-    public Parameter(String key, JSONObject values) {
+    public Parameter(String key, T value) {
         this.key = key;
-        this.values = values;
+        this.value = value;
     }
 
     public String getKey() {
@@ -19,11 +18,12 @@ public class Parameter {
         this.key = key;
     }
 
-    public JSONObject getValues() {
-        return values;
+    public T getValue() {
+        return value;
     }
 
-    public void setValues(JSONObject values) {
-        this.values = values;
+    public void setValue(T value) {
+        this.value = value;
     }
+
 }

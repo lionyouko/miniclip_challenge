@@ -1,6 +1,10 @@
 package com.miniclip.mastermind.task
 
+import android.content.Context
+import android.content.res.Resources
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
@@ -15,10 +19,13 @@ import com.thelion.advertads.interfaces.BannerListener
 import com.thelion.advertads.views.BannerView
 import com.thelion.advertads.workers.ImageAdsDownloadHelper
 import com.thelion.advertads.workers.URLResourceHelper
-import com.thelion.lytics.builders.EventGeneratorBuilder
-import com.thelion.lytics.domain.EventGenerator
+import com.thelion.lytics.builders.ConcreteEventBuilder
 import com.thelion.lytics.domain.Lytics
+import com.thelion.lytics.events.ConcreteEvent
+import com.thelion.lytics.events.Event
 import com.thelion.lytics.helpers.GameInfo
+import com.thelion.lytics.interfaces.LyticEventListener
+import java.time.Instant
 
 class MainActivity : AppCompatActivity(), BannerListener {
     private val board: Board = Board()
@@ -35,9 +42,12 @@ class MainActivity : AppCompatActivity(), BannerListener {
 
 
     // Lion lytics
-    private lateinit var eventGenerator: EventGenerator
     private lateinit var lyticsApp: Lytics
     private lateinit var mGameInfo: GameInfo
+    private lateinit var mEventListener: LyticEventListener
+    private lateinit var lastInitEvent:Event
+    private var startTimeMatch:Long = 0
+    private var finishTimeOfTheMatch:Long = 0
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,13 +77,35 @@ class MainActivity : AppCompatActivity(), BannerListener {
         bannerView = findViewById(R.id.bannerAd)
         setupBannerView()
 
-        // Lion lytics
-        val MOCK_USER_ID: Int = 2022
-        mGameInfo = GameInfo(MOCK_USER_ID, 20) // in seconds
-        lyticsApp = setupLytics(mGameInfo)
-        eventGenerator = defaultSetupEventGenerator()
-        eventGenerator.addObserver(lyticsApp)
+        // Lion lytics  - demonstration purposes
+        val MOCK_USER_ID: String = "2022"
+        mGameInfo = GameInfo(MOCK_USER_ID, 30) // in seconds
+        lyticsApp = setupLytics(mGameInfo, applicationContext)
+        lifecycle.addObserver(lyticsApp) // let lytics app to observe lifecycle
+        mEventListener = lyticsApp       // make lytics app your app LyticsEventListener
 
+        sendInitEvent()
+
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+        // when app goes back from the background
+        sendInitEvent()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        sendSessionEvent()
+    }
+
+    override fun onDestroy() {
+        // when app is closed
+        super.onDestroy()
+        sendSessionEvent()
+        endOfMatchTime()
+        sendMatchEvent(board.state, true)
     }
 
     override fun onBackPressed() {
@@ -83,10 +115,16 @@ class MainActivity : AppCompatActivity(), BannerListener {
             .setNegativeButton(R.string.no, null)
             .setPositiveButton(R.string.yes) { _, _ ->
                 finish()
+                endOfMatchTime()
+                sendMatchEvent(board.state, true)
+
             }.show()
     }
 
     private fun onNewButtonClick() {
+
+        startOfMatchTime() // start counting match time
+
         if (firstNewGameClick) {
             AlertDialog.Builder(this)
                 .setTitle(R.string.how_to_play_title)
@@ -101,10 +139,12 @@ class MainActivity : AppCompatActivity(), BannerListener {
 
                     firstNewGameClick = false
 
-                    // Lion
+                    // Lion demonstration purposes
                     bannerView.visibility = View.VISIBLE
 
                     board.populateGame(table, applicationContext)
+
+
                 }.show()
         } else {
             AlertDialog.Builder(this)
@@ -114,6 +154,9 @@ class MainActivity : AppCompatActivity(), BannerListener {
                 .setPositiveButton(R.string.yes) { _, _ ->
                     board.resetBoard()
                     board.populateGame(table, applicationContext)
+
+                    //startOfMatchTime() // start counting match time
+
                 }.show()
         }
     }
@@ -133,21 +176,31 @@ class MainActivity : AppCompatActivity(), BannerListener {
                 board.populateGame(table, applicationContext)
             }
             GameState.WON -> {
+                endOfMatchTime()
+                sendMatchEvent(board.state, false)
+
                 AlertDialog.Builder(this)
                     .setTitle(R.string.win_msg)
                     .setMessage(getString(R.string.win_popup))
                     .setPositiveButton(R.string.restart_game) { _, _ ->
                         board.resetBoard()
                         board.populateGame(table, applicationContext)
+
+                        startOfMatchTime() // start counting match time
                     }.show()
             }
             GameState.LOST -> {
+                endOfMatchTime()
+                sendMatchEvent(board.state, false)
+
                 AlertDialog.Builder(this)
                     .setTitle(R.string.lost_msg)
                     .setMessage(getString(R.string.lose_popup))
                     .setPositiveButton(R.string.restart_game) { _, _ ->
                         board.resetBoard()
                         board.populateGame(table, applicationContext)
+
+                        startOfMatchTime() // start counting match time
                     }.show()
             }
         }
@@ -156,10 +209,26 @@ class MainActivity : AppCompatActivity(), BannerListener {
     private fun onClearButtonClick() {
         board.clearCurrentRow()
         board.populateGame(table, applicationContext)
-        bannerView.triggerBannerView()
+
+        bannerView.triggerBannerView() // lion - one call to trigger or to dismiss (I put it here to demonstrate)
 
     }
+
+
+    /*
+    ------ all functions bellow are either to show the setup of the library
+            or helper functions to mimic certain aspects of the game ----------
+
+    ------ The helper part is really necessary for analytics,
+            as it depends of each game implementation
+            and how client will use provide events to it.
+            I created the events that way for demonstration purpose  --------
+     */
+
     // Lion advertads
+    /**
+     *  helper function settint up the banner view with the options it can have (for instance, setSizeAdImages)
+     */
     private fun setupBannerView(){
         bannerView.setmAdDownloader(ImageAdsDownloadHelper.getInstance(getApplicationContext()))
         bannerView.setUrlResourceHelper(URLResourceHelper())
@@ -175,27 +244,115 @@ class MainActivity : AppCompatActivity(), BannerListener {
         bannerView.setOnClickListener(bannerView)
     }
 
-    // Lion lytics
-    private fun defaultSetupEventGenerator(): EventGenerator {
-        var egb: EventGeneratorBuilder = EventGeneratorBuilder.builder()
-        return egb.withInitFactory().withMatchFactory().withSessionFactory().build()
-    }
-
-    private fun setupEventGenerator(eventTypes:List<String>): EventGenerator {
-        var egb: EventGeneratorBuilder = EventGeneratorBuilder.builder()
-        for (etg: String in eventTypes) {
-            egb.withAnyFactory(etg)
+    /**
+     * Helper function to set Lytics app (it needs an sdk_int version bigger than O (here) just because I used Instant.now()
+     * So in the end, if such thing started to become a burden, I could try to find another way to implement the time stamping,
+     * for example
+     */
+    // Lion - lytics - demonstration purposes
+    private fun setupLytics(gameInfo: GameInfo, context: Context): Lytics {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Lytics(gameInfo, context)
+        } else {
+            TODO("VERSION.SDK_INT < O")
         }
-        return egb.build()
     }
 
-    private fun setupLytics(gameInfo: GameInfo): Lytics {
-        return Lytics(gameInfo)
+    /**
+     * The sendInitEvent must be called when application first runs or goes back from background
+     * When it first runs, it needs to be triggered from launcher activity
+     * When it comes back, must be triggered via lifecycle callback
+     */
+    private fun sendInitEvent(): Unit {
+        var ie: ConcreteEvent = ConcreteEventBuilder.builder()
+            .withName("init")
+            .withParameter("os_version", Build.VERSION.SDK_INT)
+            .withParameter("advertising_id","00000000-0000-0000-0000-000000000000")
+            .withParameter("advertising_tracking_enabled", false)
+            .withParameter("device_display_height", Resources.getSystem().getDisplayMetrics().heightPixels) // (it excludes the top bar)
+            .withParameter("device_display_width",Resources.getSystem().getDisplayMetrics().widthPixels)
+            .build()
+
+        Log.d("MainActivity.kt", ie.asJSONString())
+        lastInitEvent = ie //see here how the last init event created is saved to be used later on
+        mEventListener.onEvent(ie)
+    }
+
+    /**
+     * The sendMatchEvent must be called when the user finishes a mastermind match or closes the app during the game or goes to background
+     * When it finishes a match, it can be triggered from most convenient object to do so
+     * When it closes the app during the game or goes to background, must be launched via lifecycle callback
+     */
+    private fun sendMatchEvent(status:GameState, onAppClosing:Boolean): Unit {
+
+        Log.d("Lytics", "match event " + this.startTimeMatch)
+        // simple way to check which is the condition of the game
+        // it should be implemented in a better way, it is to show events working
+        var result: String = if (onAppClosing && (status == GameState.PLAYING)) {
+           "Left"
+        } else {
+            when (status) {
+                GameState.WON -> "Victory"
+                GameState.LOST -> "Defeat"
+                GameState.PLAYING -> "Pause"
+            }
+        }
+
+        var me: ConcreteEvent = ConcreteEventBuilder.builder()
+            .withName("match")
+            .withParameter("duration", this.finishTimeOfTheMatch)
+            .withParameter("result",result)
+            .build()
+
+        mEventListener.onEvent(me)
+    }
+
+    /**
+     * The sendSessionEvent must be called when the application is closed or when the application goes to background
+     * When it is closed, it needs to be triggered via lifecycle callback
+     * When it goes to background, must be launched via lifecycle callback
+     */
+    private fun sendSessionEvent(): Unit {
+        var se: ConcreteEvent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            ConcreteEventBuilder.builder()
+                .withName("session")
+                .withParameter("duration", Instant.now().getEpochSecond() - lastInitEvent.timeStamp)
+                .build()
+
+        } else {
+            TODO("VERSION.SDK_INT < O")
+        }
+
+        mEventListener.onEvent(se)
     }
 
 
+    /**
+     * helper function to denote the timestamp of the beginning of a match
+     */
+    private fun startOfMatchTime() {
+        startTimeMatch = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Instant.now().epochSecond
+            //I wll use this just to provide some match duration. It could be anything marking time.
+        } else {
+            TODO("VERSION.SDK_INT < O")
+        }
+    }
 
-    // Lion BannerListener
+    /**
+     * helper function to denote the timestamp of the end of a match
+     */
+    private fun endOfMatchTime(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            finishTimeOfTheMatch = Instant.now().epochSecond - startTimeMatch
+        }
+    }
+
+    /*
+------------------------- BannerListener interface  (see the interface) -------------------------
+    */
+
+    // Lion - BannerListener - demonstration purposes
     override fun onBannerAdClicked() {
         Toast.makeText(applicationContext, "Banner clicked",
             Toast.LENGTH_SHORT).show()
