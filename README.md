@@ -1,5 +1,5 @@
-# miniclip_challenge
-Private Repository to Write The Process of Creating Two APIs for mini clip challenge 
+# miniclip_challenge (it is now public as its validity worn out)
+Repository to Write The Process of Creating Two APIs for mini clip challenge 
 ---
 (Disclaimer: This document will probably have lots of versions as it will be built dynamically and accordingly to the necessity to add new formats of the sections along the sections themselves. I will try to maintain the document free of typos, but the my keyboard is broken)
 
